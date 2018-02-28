@@ -484,18 +484,18 @@ module PmacsRefile
     end
   end
 
-  require "refile/version"
-  require "refile/signature"
-  require "refile/type"
-  require "refile/backend_macros"
-  require "refile/attachment_definition"
-  require "refile/attacher"
-  require "refile/attachment"
-  require "refile/random_hasher"
-  require "refile/file"
-  require "refile/custom_logger"
-  require "refile/app"
-  require "refile/backend/file_system"
+  require "pmacs_refile/version"
+  require "pmacs_refile/signature"
+  require "pmacs_refile/type"
+  require "pmacs_refile/backend_macros"
+  require "pmacs_refile/attachment_definition"
+  require "pmacs_refile/attacher"
+  require "pmacs_refile/attachment"
+  require "pmacs_refile/random_hasher"
+  require "pmacs_refile/file"
+  require "pmacs_refile/custom_logger"
+  require "pmacs_refile/app"
+  require "pmacs_refile/backend/file_system"
 end
 
 PmacsRefile.configure do |config|

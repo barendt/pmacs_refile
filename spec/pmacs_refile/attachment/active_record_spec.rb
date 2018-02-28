@@ -74,7 +74,7 @@ describe PmacsRefile::ActiveRecord::Attachment do
         end
 
         it "returns false when file size is zero" do
-          file = Refile.cache.upload(StringIO.new("hello"))
+          file = PmacsRefile.cache.upload(StringIO.new("hello"))
           post = klass.new
           post.document = { id: file.id, filename: "image.Png" }.to_json
           expect(post.valid?).to be_falsy
@@ -88,7 +88,7 @@ describe PmacsRefile::ActiveRecord::Attachment do
 
           it "returns true when extension is included in list" do
             post = klass.new
-            post.document = Refile::FileDouble.new("hello", "funny.gif")
+            post.document = PmacsRefile::FileDouble.new("hello", "funny.gif")
             expect(post.valid?).to be_truthy
             expect(post.errors[:document]).to be_empty
           end
@@ -99,7 +99,7 @@ describe PmacsRefile::ActiveRecord::Attachment do
 
           it "returns true when extension is included in list" do
             post = klass.new
-            post.document = Refile::FileDouble.new("hello", "funny.gif")
+            post.document = PmacsRefile::FileDouble.new("hello", "funny.gif")
             expect(post.valid?).to be_falsey
             expect(post.errors[:document].length).to eq(1)
           end
@@ -161,11 +161,7 @@ describe PmacsRefile::ActiveRecord::Attachment do
 
     context "with metadata" do
       it "returns false when metadata doesn't have an id" do
-<<<<<<< HEAD:spec/pmacs_refile/attachment/active_record_spec.rb
-        PmacsRefile.cache.upload(StringIO.new("hello"))
-=======
-        file = Refile.cache.upload(StringIO.new("hello"))
->>>>>>> upstream/master:spec/refile/attachment/active_record_spec.rb
+        file = PmacsRefile.cache.upload(StringIO.new("hello"))
         post = klass.new
         post.document = { content_type: "text/png", size: file.size }.to_json
         expect(post.valid?).to be_falsy
@@ -180,12 +176,8 @@ describe PmacsRefile::ActiveRecord::Attachment do
         expect(post.errors[:document].length).to eq(1)
       end
 
-<<<<<<< HEAD:spec/pmacs_refile/attachment/active_record_spec.rb
-      it "returns true when type is invalid" do
-        file = PmacsRefile.cache.upload(StringIO.new("hello"))
-=======
       it "returns false when file size is zero" do
-        file = Refile.cache.upload(StringIO.new(""))
+        file = PmacsRefile.cache.upload(StringIO.new(""))
         post = klass.new
         post.document = { id: file.id, content_type: "image/png", size: file.size }.to_json
         expect(post.valid?).to be_falsy
@@ -193,8 +185,7 @@ describe PmacsRefile::ActiveRecord::Attachment do
       end
 
       it "returns true when type is valid" do
-        file = Refile.cache.upload(StringIO.new("hello"))
->>>>>>> upstream/master:spec/refile/attachment/active_record_spec.rb
+        file = PmacsRefile.cache.upload(StringIO.new("hello"))
         post = klass.new
         post.document = { id: file.id, content_type: "image/png", size: file.size }.to_json
         expect(post.valid?).to be_truthy
@@ -501,7 +492,7 @@ describe PmacsRefile::ActiveRecord::Attachment do
 
     it "assigns the file to the attribute" do
       post = klass.new
-      post.not_trackable_attribute = Refile::FileDouble.new("foo")
+      post.not_trackable_attribute = PmacsRefile::FileDouble.new("foo")
       expect(post.not_trackable_attribute.read).to eq("foo")
     end
   end
