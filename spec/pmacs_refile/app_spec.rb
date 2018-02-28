@@ -23,7 +23,7 @@ describe PmacsRefile::App do
     end
 
     it "sets appropriate filename from URL" do
-      file = Refile.store.upload(StringIO.new("hello"))
+      file = PmacsRefile.store.upload(StringIO.new("hello"))
       get "/token/store/#{file.id}/logo@2x.png"
 
       expect(last_response.status).to eq(200)
@@ -40,7 +40,7 @@ describe PmacsRefile::App do
     end
 
     it "downloads the uploaded file if force download is enabled" do
-      file = Refile.store.upload(StringIO.new("hello"))
+      file = PmacsRefile.store.upload(StringIO.new("hello"))
       get "/token/store/#{file.id}/hello?force_download=true"
 
       expect(last_response.status).to eq(200)
@@ -116,16 +116,10 @@ describe PmacsRefile::App do
         allow(PmacsRefile).to receive(:token).and_call_original
       end
 
-<<<<<<< HEAD:spec/pmacs_refile/app_spec.rb
-      it "accepts valid token" do
-        file = PmacsRefile.store.upload(StringIO.new("hello"))
-        token = PmacsRefile.token("/store/#{file.id}/hello")
-=======
       context "with a valid token" do
-        let(:file) { Refile.store.upload(StringIO.new("hello")) }
+        let(:file) { PmacsRefile.store.upload(StringIO.new("hello")) }
         it "accepts the token" do
-          token = Refile.token("/store/#{file.id}/hello")
->>>>>>> upstream/master:spec/refile/app_spec.rb
+          token = PmacsRefile.token("/store/#{file.id}/hello")
 
           get "/#{token}/store/#{file.id}/hello"
 
@@ -138,7 +132,7 @@ describe PmacsRefile::App do
 
           it "accepts the expires at" do
             token =
-              Refile.token("/store/#{file.id}/hello?expires_at=#{expires_at}")
+              PmacsRefile.token("/store/#{file.id}/hello?expires_at=#{expires_at}")
 
             get "/#{token}/store/#{file.id}/hello?expires_at=#{expires_at}"
 
@@ -152,7 +146,7 @@ describe PmacsRefile::App do
 
           it "returns a 403" do
             token =
-              Refile.token("/store/#{file.id}/hello?expires_at=#{expires_at}")
+              PmacsRefile.token("/store/#{file.id}/hello?expires_at=#{expires_at}")
 
             get "/#{token}/store/#{file.id}/hello?expires_at=#{expires_at}"
 
@@ -166,7 +160,7 @@ describe PmacsRefile::App do
 
           it "returns a 403" do
             token =
-              Refile.token("/store/#{file.id}/hello?expires_at=#{expires_at}")
+              PmacsRefile.token("/store/#{file.id}/hello?expires_at=#{expires_at}")
 
             get "/#{token}/store/#{file.id}/hello"
 

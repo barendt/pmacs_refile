@@ -115,7 +115,7 @@ describe PmacsRefile::Attachment do
 
   describe "presigned_:name_url=" do
     it "generates presigned URL" do
-      file = Refile.store.upload(Refile::FileDouble.new("hello"))
+      file = PmacsRefile.store.upload(Refile::FileDouble.new("hello"))
       instance.document_id = file.id
 
       allow(Refile.store).to receive_message_chain(:object, :presigned_url).with(file.id).with(:get, expires_in: 900).and_return("PRESIGNED_URL")
@@ -123,7 +123,7 @@ describe PmacsRefile::Attachment do
     end
 
     it "generates presigned URL with custom expiration" do
-      file = Refile.store.upload(Refile::FileDouble.new("hello"))
+      file = PmacsRefile.store.upload(Refile::FileDouble.new("hello"))
       instance.document_id = file.id
 
       allow(Refile.store).to receive_message_chain(:object, :presigned_url).with(file.id).with(:get, expires_in: 901).and_return("PRESIGNED_URL")
@@ -361,7 +361,7 @@ describe PmacsRefile::Attachment do
     end
 
     it "returns false and sets errors if file with zero byte is uploaded" do
-      file = Refile::FileDouble.new("", "hello", content_type: "image/png")
+      file = PmacsRefile::FileDouble.new("", "hello", content_type: "image/png")
       instance.document = file
 
       expect(instance.document_attacher.valid?).to be_falsy

@@ -1,6 +1,6 @@
-require "refile"
+require "pmacs_refile"
 
-RSpec.describe Refile do
+RSpec.describe PmacsRefile do
   before do
     allow(Refile).to receive(:token).and_return("token")
     allow(Refile).to receive(:app_host).and_return(nil)
@@ -9,7 +9,7 @@ RSpec.describe Refile do
 
   let(:klass) do
     Class.new do
-      extend Refile::Attachment
+      extend PmacsRefile::Attachment
       attr_accessor :document_id
       attachment :document
     end
@@ -18,39 +18,39 @@ RSpec.describe Refile do
 
   describe ".extract_filename" do
     it "extracts filename from original_filename" do
-      name = Refile.extract_filename(double(original_filename: "/foo/bar/baz.png"))
+      name = PmacsRefile.extract_filename(double(original_filename: "/foo/bar/baz.png"))
       expect(name).to eq("baz.png")
     end
 
     it "extracts filename from path" do
-      name = Refile.extract_filename(double(path: "/foo/bar/baz.png"))
+      name = PmacsRefile.extract_filename(double(path: "/foo/bar/baz.png"))
       expect(name).to eq("baz.png")
     end
 
     it "returns nil if it can't determine filename" do
-      name = Refile.extract_filename(double)
+      name = PmacsRefile.extract_filename(double)
       expect(name).to be_nil
     end
   end
 
   describe ".extract_content_type" do
     it "extracts content type" do
-      name = Refile.extract_content_type(double(content_type: "image/jpeg"))
+      name = PmacsRefile.extract_content_type(double(content_type: "image/jpeg"))
       expect(name).to eq("image/jpeg")
     end
 
     it "extracts content type from extension" do
-      name = Refile.extract_content_type(double(original_filename: "test.png"))
+      name = PmacsRefile.extract_content_type(double(original_filename: "test.png"))
       expect(name).to eq("image/png")
     end
 
     it "returns nil if it can't determine content type" do
-      name = Refile.extract_filename(double)
+      name = PmacsRefile.extract_filename(double)
       expect(name).to be_nil
     end
 
     it "returns nil if it has an unknown content type" do
-      name = Refile.extract_content_type(double(original_filename: "foo.blah"))
+      name = PmacsRefile.extract_content_type(double(original_filename: "foo.blah"))
       expect(name).to be_nil
     end
   end
@@ -64,7 +64,7 @@ RSpec.describe Refile do
       expect(Refile.app_url(host: "http://example.org")).to eq("http://example.org/")
     end
 
-    it "falls back to Refile.app_host" do
+    it "falls back to PmacsRefile.app_host" do
       allow(Refile).to receive(:app_host).and_return("http://elabs.se")
 
       expect(Refile.app_url).to eq("http://elabs.se/")
@@ -74,14 +74,14 @@ RSpec.describe Refile do
       expect(Refile.app_url(prefix: "/moo")).to eq("/moo")
     end
 
-    it "takes prefix from Refile.mount_point" do
+    it "takes prefix from PmacsRefile.mount_point" do
       allow(Refile).to receive(:mount_point).and_return("/attachments")
       expect(Refile.app_url).to eq("/attachments")
     end
   end
 
   describe ".file_url" do
-    let(:file) { Refile.cache.upload(Refile::FileDouble.new("hello")) }
+    let(:file) { PmacsRefile.cache.upload(Refile::FileDouble.new("hello")) }
     let(:id) { file.id }
 
     it "generates a url from an attachment" do
@@ -92,13 +92,13 @@ RSpec.describe Refile do
       expect(Refile.file_url(file, host: "http://example.org", filename: "document")).to eq("http://example.org/token/cache/#{id}/document")
     end
 
-    it "falls back to Refile.app_host" do
+    it "falls back to PmacsRefile.app_host" do
       allow(Refile).to receive(:app_host).and_return("http://elabs.se")
 
       expect(Refile.file_url(file, filename: "document")).to eq("http://elabs.se/token/cache/#{id}/document")
     end
 
-    it "falls back to Refile.cdn_host" do
+    it "falls back to PmacsRefile.cdn_host" do
       allow(Refile).to receive(:cdn_host).and_return("http://foo.cloudfront.com")
       allow(Refile).to receive(:app_host).and_return("http://elabs.se")
 
@@ -109,7 +109,7 @@ RSpec.describe Refile do
       expect(Refile.file_url(file, prefix: "/moo", filename: "document")).to eq("/moo/token/cache/#{id}/document")
     end
 
-    it "takes prefix from Refile.mount_point" do
+    it "takes prefix from PmacsRefile.mount_point" do
       allow(Refile).to receive(:mount_point).and_return("/attachments")
       expect(Refile.file_url(file, filename: "document")).to eq("/attachments/token/cache/#{id}/document")
     end
@@ -139,7 +139,7 @@ RSpec.describe Refile do
 
     context "with file" do
       before do
-        instance.document = Refile::FileDouble.new("hello")
+        instance.document = PmacsRefile::FileDouble.new("hello")
       end
 
       it "generates a url from an attachment" do
@@ -150,13 +150,13 @@ RSpec.describe Refile do
         expect(Refile.attachment_url(instance, :document, host: "http://example.org")).to eq("http://example.org/token/cache/#{id}/document")
       end
 
-      it "falls back to Refile.app_host" do
+      it "falls back to PmacsRefile.app_host" do
         allow(Refile).to receive(:app_host).and_return("http://elabs.se")
 
         expect(Refile.attachment_url(instance, :document)).to eq("http://elabs.se/token/cache/#{id}/document")
       end
 
-      it "falls back to Refile.cdn_host" do
+      it "falls back to PmacsRefile.cdn_host" do
         allow(Refile).to receive(:cdn_host).and_return("http://foo.cloudfront.com")
         allow(Refile).to receive(:app_host).and_return("http://elabs.se")
 
@@ -167,7 +167,7 @@ RSpec.describe Refile do
         expect(Refile.attachment_url(instance, :document, prefix: "/moo")).to eq("/moo/token/cache/#{id}/document")
       end
 
-      it "takes prefix from Refile.mount_point" do
+      it "takes prefix from PmacsRefile.mount_point" do
         allow(Refile).to receive(:mount_point).and_return("/attachments")
         expect(Refile.attachment_url(instance, :document)).to eq("/attachments/token/cache/#{id}/document")
       end
@@ -184,7 +184,7 @@ RSpec.describe Refile do
 
     context "with file with content type" do
       before do
-        instance.document = Refile::FileDouble.new("hello", content_type: "image/png")
+        instance.document = PmacsRefile::FileDouble.new("hello", content_type: "image/png")
       end
 
       it "adds format inferred from content type" do
@@ -194,7 +194,7 @@ RSpec.describe Refile do
 
     context "with file with filename" do
       before do
-        instance.document = Refile::FileDouble.new("hello", "hello.html")
+        instance.document = PmacsRefile::FileDouble.new("hello", "hello.html")
       end
 
       it "adds filename" do
@@ -218,13 +218,13 @@ RSpec.describe Refile do
       expect(Refile.upload_url(Refile.cache, host: "http://example.org")).to eq("http://example.org/cache")
     end
 
-    it "falls back to Refile.app_host" do
+    it "falls back to PmacsRefile.app_host" do
       allow(Refile).to receive(:app_host).and_return("http://elabs.se")
 
       expect(Refile.upload_url(Refile.cache)).to eq("http://elabs.se/cache")
     end
 
-    it "does not fall back to Refile.cdn_host" do
+    it "does not fall back to PmacsRefile.cdn_host" do
       allow(Refile).to receive(:cdn_host).and_return("http://foo.cloudfront.com")
 
       expect(Refile.upload_url(Refile.cache)).to eq("/cache")
@@ -234,7 +234,7 @@ RSpec.describe Refile do
       expect(Refile.upload_url(Refile.cache, prefix: "/moo")).to eq("/moo/cache")
     end
 
-    it "takes prefix from Refile.mount_point" do
+    it "takes prefix from PmacsRefile.mount_point" do
       allow(Refile).to receive(:mount_point).and_return("/attachments")
       expect(Refile.upload_url(Refile.cache)).to eq("/attachments/cache")
     end
@@ -249,13 +249,13 @@ RSpec.describe Refile do
       expect(Refile.presign_url(Refile.cache, host: "http://example.org")).to eq("http://example.org/cache/presign")
     end
 
-    it "falls back to Refile.app_host" do
+    it "falls back to PmacsRefile.app_host" do
       allow(Refile).to receive(:app_host).and_return("http://elabs.se")
 
       expect(Refile.presign_url(Refile.cache)).to eq("http://elabs.se/cache/presign")
     end
 
-    it "does not fall back to Refile.cdn_host" do
+    it "does not fall back to PmacsRefile.cdn_host" do
       allow(Refile).to receive(:cdn_host).and_return("http://foo.cloudfront.com")
 
       expect(Refile.presign_url(Refile.cache)).to eq("/cache/presign")
@@ -265,7 +265,7 @@ RSpec.describe Refile do
       expect(Refile.presign_url(Refile.cache, prefix: "/moo")).to eq("/moo/cache/presign")
     end
 
-    it "takes prefix from Refile.mount_point" do
+    it "takes prefix from PmacsRefile.mount_point" do
       allow(Refile).to receive(:mount_point).and_return("/attachments")
       expect(Refile.presign_url(Refile.cache)).to eq("/attachments/cache/presign")
     end
@@ -280,13 +280,13 @@ RSpec.describe Refile do
       expect(Refile.attachment_upload_url(instance, :document, host: "http://example.org")).to eq("http://example.org/cache")
     end
 
-    it "falls back to Refile.app_host" do
+    it "falls back to PmacsRefile.app_host" do
       allow(Refile).to receive(:app_host).and_return("http://elabs.se")
 
       expect(Refile.attachment_upload_url(instance, :document)).to eq("http://elabs.se/cache")
     end
 
-    it "does not fall back to Refile.cdn_host" do
+    it "does not fall back to PmacsRefile.cdn_host" do
       allow(Refile).to receive(:cdn_host).and_return("http://foo.cloudfront.com")
 
       expect(Refile.attachment_upload_url(instance, :document)).to eq("/cache")
@@ -296,7 +296,7 @@ RSpec.describe Refile do
       expect(Refile.attachment_upload_url(instance, :document, prefix: "/moo")).to eq("/moo/cache")
     end
 
-    it "takes prefix from Refile.mount_point" do
+    it "takes prefix from PmacsRefile.mount_point" do
       allow(Refile).to receive(:mount_point).and_return("/attachments")
       expect(Refile.attachment_upload_url(instance, :document)).to eq("/attachments/cache")
     end
@@ -311,13 +311,13 @@ RSpec.describe Refile do
       expect(Refile.attachment_presign_url(instance, :document, host: "http://example.org")).to eq("http://example.org/cache/presign")
     end
 
-    it "falls back to Refile.app_host" do
+    it "falls back to PmacsRefile.app_host" do
       allow(Refile).to receive(:app_host).and_return("http://elabs.se")
 
       expect(Refile.attachment_presign_url(instance, :document)).to eq("http://elabs.se/cache/presign")
     end
 
-    it "does not fall back to Refile.cdn_host" do
+    it "does not fall back to PmacsRefile.cdn_host" do
       allow(Refile).to receive(:cdn_host).and_return("http://foo.cloudfront.com")
 
       expect(Refile.attachment_presign_url(instance, :document)).to eq("/cache/presign")
@@ -327,7 +327,7 @@ RSpec.describe Refile do
       expect(Refile.attachment_presign_url(instance, :document, prefix: "/moo")).to eq("/moo/cache/presign")
     end
 
-    it "takes prefix from Refile.mount_point" do
+    it "takes prefix from PmacsRefile.mount_point" do
       allow(Refile).to receive(:mount_point).and_return("/attachments")
       expect(Refile.attachment_presign_url(instance, :document)).to eq("/attachments/cache/presign")
     end
@@ -349,7 +349,7 @@ RSpec.describe Refile do
     it "returns raise error when secret token is nil" do
       allow(Refile).to receive(:secret_key).and_return(nil)
 
-      expect { Refile.token("/store/f5f2e4/document.pdf") }.to raise_error(RuntimeError, /Refile\.secret_key was not set/)
+      expect { PmacsRefile.token("/store/f5f2e4/document.pdf") }.to raise_error(RuntimeError, /Refile\.secret_key was not set/)
     end
   end
 end
