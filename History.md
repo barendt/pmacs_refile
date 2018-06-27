@@ -1,4 +1,4 @@
-# master
+# 0.6.3
 
 - [ADDED] Allow to keep uploaded files when the record is destroyed #362
 - [ADDED] Make Refile::FileDouble available to users #394
