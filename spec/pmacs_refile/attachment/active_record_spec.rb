@@ -26,6 +26,8 @@ describe PmacsRefile::ActiveRecord::Attachment do
       let(:options) { { cache: :limited_cache, extension: %w[Png] } }
 
       context "with file" do
+        let(:options) { { cache: :limited_cache, extension: %w[Png Gif] } }
+
         it "returns true when extension is included in list" do
           post = klass.new
           post.document = PmacsRefile::FileDouble.new("hello", "image.Png")
@@ -40,11 +42,18 @@ describe PmacsRefile::ActiveRecord::Attachment do
           expect(post.errors[:document]).to be_empty
         end
 
-        it "returns false when extension is invalid" do
+        it "returns false and an error message when extension is invalid" do
           post = klass.new
           post.document = PmacsRefile::FileDouble.new("hello", "image.jpg")
           expect(post.valid?).to be_falsy
-          expect(post.errors[:document].length).to eq(1)
+          expect(post.errors[:document]).to match_array([/not allowed to upload jpg.+Allowed types: Png[^,]?/])
+        end
+
+        it "returns false and an error message when extension is empty" do
+          post = klass.new
+          post.document = Refile::FileDouble.new("hello", "image")
+          expect(post.valid?).to be_falsy
+          expect(post.errors[:document]).to match_array([/not allowed to upload an empty.+Allowed types: Png[^,]?/])
         end
       end
 
@@ -68,9 +77,17 @@ describe PmacsRefile::ActiveRecord::Attachment do
         it "returns false when extension is invalid" do
           file = PmacsRefile.cache.upload(StringIO.new("hello"))
           post = klass.new
-          post.document = { id: file.id, filename: "image.jpg", size: file.size }.to_json
+          post.document = { id: file.id, filename: "image.gif", size: file.size }.to_json
           expect(post.valid?).to be_falsy
-          expect(post.errors[:document].length).to eq(1)
+          expect(post.errors[:document]).to match_array([/not allowed to upload gif.+Allowed types: Png[^,]?/])
+        end
+
+        it "returns false and an error message when extension is empty" do
+          file = PmacsRefile.cache.upload(StringIO.new("hello"))
+          post = klass.new
+          post.document = { id: file.id, filename: "image", size: file.size }.to_json
+          expect(post.valid?).to be_falsy
+          expect(post.errors[:document]).to match_array([/not allowed to upload an empty.+Allowed types: Png[^,]?/])
         end
 
         it "returns false when file size is zero" do
@@ -114,23 +131,46 @@ describe PmacsRefile::ActiveRecord::Attachment do
         expect(post.errors[:document]).to be_empty
       end
 
-      it "returns false when type is invalid" do
+      it "returns false and an error message when type is invalid" do
         post = klass.new
         post.document = PmacsRefile::FileDouble.new("hello", content_type: "text/plain")
         expect(post.valid?).to be_falsy
-        expect(post.errors[:document].length).to eq(1)
+        expect(post.errors[:document]).to match_array(
+          [%r{not allowed to upload text/plain.+Allowed types: image/jpeg, image/gif, and image/png[^,]?}]
+        )
       end
 
-      it "returns false when it has multiple errors" do
+      it "returns false and an error message when type is empty" do
+        post = klass.new
+        post.document = Refile::FileDouble.new("hello", content_type: "")
+        expect(post.valid?).to be_falsy
+        expect(post.errors[:document]).to match_array(
+          [%r{not allowed to upload an empty.+Allowed types: image/jpeg, image/gif, and image/png[^,]?}]
+        )
+      end
+
+      it "returns false and error messages when it has multiple errors" do
         post = klass.new
         post.document = PmacsRefile::FileDouble.new("h" * 200, content_type: "text/plain")
         expect(post.valid?).to be_falsy
-        expect(post.errors[:document].length).to eq(2)
+        expect(post.errors[:document]).to match_array(
+          [
+            %r{not allowed to upload text/plain.+Allowed types: image/jpeg, image/gif, and image/png[^,]?},
+            "is too large"
+          ]
+        )
       end
 
-      it "returns true when type is invalid" do
+      it "returns true when type is valid" do
         post = klass.new
         post.document = PmacsRefile::FileDouble.new("hello", content_type: "image/png")
+        expect(post.valid?).to be_truthy
+        expect(post.errors[:document]).to be_empty
+      end
+
+      it "returns true when an encoding is appended to a valid type" do
+        post = klass.new
+        post.document = Refile::FileDouble.new("hello", content_type: "image/png;charset=UTF-8")
         expect(post.valid?).to be_truthy
         expect(post.errors[:document]).to be_empty
       end
@@ -165,15 +205,23 @@ describe PmacsRefile::ActiveRecord::Attachment do
         post = klass.new
         post.document = { content_type: "text/png", size: file.size }.to_json
         expect(post.valid?).to be_falsy
-        expect(post.errors[:document].length).to eq(1)
+        expect(post.errors[:document]).to match_array([%r{not allowed to upload text/png.+Allowed types: image/jpeg, image/gif, and image/png[^,]?}])
       end
 
-      it "returns false when type is invalid" do
+      it "returns false and an error message when type is invalid" do
         file = PmacsRefile.cache.upload(StringIO.new("hello"))
         post = klass.new
         post.document = { id: file.id, content_type: "text/png", size: file.size }.to_json
         expect(post.valid?).to be_falsy
-        expect(post.errors[:document].length).to eq(1)
+        expect(post.errors[:document]).to match_array([%r{not allowed to upload text/png.+Allowed types: image/jpeg, image/gif, and image/png[^,]?}])
+      end
+
+      it "returns false and an error message when type is empty" do
+        file = PmacsRefile.cache.upload(StringIO.new("hello"))
+        post = klass.new
+        post.document = { id: file.id, content_type: "", size: file.size }.to_json
+        expect(post.valid?).to be_falsy
+        expect(post.errors[:document]).to match_array([%r{not allowed to upload an empty.+Allowed types: image/jpeg, image/gif, and image/png[^,]?}])
       end
 
       it "returns false when file size is zero" do
@@ -188,6 +236,14 @@ describe PmacsRefile::ActiveRecord::Attachment do
         file = PmacsRefile.cache.upload(StringIO.new("hello"))
         post = klass.new
         post.document = { id: file.id, content_type: "image/png", size: file.size }.to_json
+        expect(post.valid?).to be_truthy
+        expect(post.errors[:document]).to be_empty
+      end
+
+      it "returns true when an encoding is appended to a valid type" do
+        file = PmacsRefile.cache.upload(StringIO.new("hello"))
+        post = klass.new
+        post.document = { id: file.id, content_type: "image/png;charset=UTF-8", size: file.size }.to_json
         expect(post.valid?).to be_truthy
         expect(post.errors[:document]).to be_empty
       end
@@ -290,6 +346,19 @@ describe PmacsRefile::ActiveRecord::Attachment do
     let(:post) { post_class.new }
 
     describe "#:association_:name" do
+      let(:wrong_method) { "files" }
+      let(:wrong_association_message) do
+        "wrong association name #{wrong_method}, use like this documents_files"
+      end
+
+      it "returns a friendly error message for wrong association name" do
+        expect { post.send(wrong_method) }.to raise_error(wrong_association_message)
+      end
+
+      it "return method missing" do
+        expect { post.foo }.to_not raise_error(wrong_association_message)
+      end
+
       it "builds records from assigned files" do
         post.documents_files = [PmacsRefile::FileDouble.new("hello"), PmacsRefile::FileDouble.new("world")]
         expect(post.documents[0].file.read).to eq("hello")
