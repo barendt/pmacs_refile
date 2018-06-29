@@ -1,3 +1,3 @@
 module PmacsRefile
-  VERSION = "1.0.2".freeze
+  VERSION = "0.6.3".freeze
 end
