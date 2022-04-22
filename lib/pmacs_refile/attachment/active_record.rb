@@ -18,7 +18,11 @@ module PmacsRefile
             send(attacher).valid?
             errors = send(attacher).errors
             errors.each do |error|
-              self.errors.add(name, *error)
+              if error.is_a?(Array)
+                self.errors.add(name, error[0], **error[1])
+              else
+                self.errors.add(name, *error)
+              end
             end
           end
         end

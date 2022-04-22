@@ -21,6 +21,8 @@ tmp
 *.o
 *.a
 mkmf.log
+test.log
+db.sqlite
 
 s3.yml
 spec/pmacs_refile/test_app/log

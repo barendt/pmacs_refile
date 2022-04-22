@@ -115,18 +115,18 @@ describe PmacsRefile::Attachment do
 
   describe "presigned_:name_url=" do
     it "generates presigned URL" do
-      file = PmacsRefile.store.upload(Refile::FileDouble.new("hello"))
+      file = PmacsRefile.store.upload(PmacsRefile::FileDouble.new("hello"))
       instance.document_id = file.id
 
-      allow(Refile.store).to receive_message_chain(:object, :presigned_url).with(file.id).with(:get, expires_in: 900).and_return("PRESIGNED_URL")
+      allow(PmacsRefile.store).to receive_message_chain(:object, :presigned_url).with(file.id).with(:get, expires_in: 900).and_return("PRESIGNED_URL")
       expect(instance.presigned_document_url).to eq("PRESIGNED_URL")
     end
 
     it "generates presigned URL with custom expiration" do
-      file = PmacsRefile.store.upload(Refile::FileDouble.new("hello"))
+      file = PmacsRefile.store.upload(PmacsRefile::FileDouble.new("hello"))
       instance.document_id = file.id
 
-      allow(Refile.store).to receive_message_chain(:object, :presigned_url).with(file.id).with(:get, expires_in: 901).and_return("PRESIGNED_URL")
+      allow(PmacsRefile.store).to receive_message_chain(:object, :presigned_url).with(file.id).with(:get, expires_in: 901).and_return("PRESIGNED_URL")
       expect(instance.presigned_document_url(901)).to eq("PRESIGNED_URL")
     end
 

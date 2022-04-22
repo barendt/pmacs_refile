@@ -28,7 +28,6 @@ require "capybara/rails"
 require "capybara/rspec"
 require "pmacs_refile/spec_helper"
 require "pmacs_refile/active_record_helper"
-require "capybara/poltergeist"
 
 if ENV["SAUCE_BROWSER"]
   Capybara.register_driver :selenium do |app|
@@ -40,7 +39,7 @@ if ENV["SAUCE_BROWSER"]
   end
 end
 
-Capybara.javascript_driver = :poltergeist
+Capybara.javascript_driver = :selenium_headless
 
 Capybara.configure do |config|
   config.server_port = 56_120

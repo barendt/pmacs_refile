@@ -884,7 +884,7 @@ RSpec.describe Post, type: :model do
   it "allows attaching an image" do
     post = Post.new
 
-    post.image = Refile::FileDouble.new("dummy", "logo.png", content_type: "image/png")
+    post.image = PmacsRefile::FileDouble.new("dummy", "logo.png", content_type: "image/png")
     post.save
 
     expect(post.image_id).not_to be_nil
@@ -893,7 +893,7 @@ RSpec.describe Post, type: :model do
   it "doesn't allow attaching other files" do
     post = Post.new
 
-    post.image = Refile::FileDouble.new("dummy", "file.txt", content_type: "text/plain")
+    post.image = PmacsRefile::FileDouble.new("dummy", "file.txt", content_type: "text/plain")
     post.save
 
     expect(post.image_id).to be_nil
