@@ -51,7 +51,7 @@ describe PmacsRefile::ActiveRecord::Attachment do
 
         it "returns false and an error message when extension is empty" do
           post = klass.new
-          post.document = Refile::FileDouble.new("hello", "image")
+          post.document = PmacsRefile::FileDouble.new("hello", "image")
           expect(post.valid?).to be_falsy
           expect(post.errors[:document]).to match_array([/not allowed to upload an empty.+Allowed types: Png[^,]?/])
         end
@@ -142,7 +142,7 @@ describe PmacsRefile::ActiveRecord::Attachment do
 
       it "returns false and an error message when type is empty" do
         post = klass.new
-        post.document = Refile::FileDouble.new("hello", content_type: "")
+        post.document = PmacsRefile::FileDouble.new("hello", content_type: "")
         expect(post.valid?).to be_falsy
         expect(post.errors[:document]).to match_array(
           [%r{not allowed to upload an empty.+Allowed types: image/jpeg, image/gif, and image/png[^,]?}]
@@ -170,7 +170,7 @@ describe PmacsRefile::ActiveRecord::Attachment do
 
       it "returns true when an encoding is appended to a valid type" do
         post = klass.new
-        post.document = Refile::FileDouble.new("hello", content_type: "image/png;charset=UTF-8")
+        post.document = PmacsRefile::FileDouble.new("hello", content_type: "image/png;charset=UTF-8")
         expect(post.valid?).to be_truthy
         expect(post.errors[:document]).to be_empty
       end
